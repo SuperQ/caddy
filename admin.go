@@ -33,6 +33,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.uber.org/zap"
 )
 
@@ -127,6 +128,9 @@ func (admin AdminConfig) newAdminHandler(addr NetworkAddress) adminHandler {
 	muxWrap.mux.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
 	muxWrap.mux.HandleFunc("/debug/pprof/trace", pprof.Trace)
 	muxWrap.mux.Handle("/debug/vars", expvar.Handler())
+
+	// register metrics
+	muxWrap.mux.Handle("/metrics", promhttp.Handler())
 
 	// register third-party module endpoints
 	for _, m := range GetModules("admin.api") {

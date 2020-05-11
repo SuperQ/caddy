@@ -19,6 +19,7 @@ require (
 	github.com/lucas-clemente/quic-go v0.15.7
 	github.com/naoina/go-stringutil v0.1.0 // indirect
 	github.com/naoina/toml v0.1.1
+	github.com/prometheus/client_golang v1.6.0
 	github.com/smallstep/certificates v0.15.0-rc.1.0.20200506212953-e855707dc274
 	github.com/smallstep/cli v0.14.3
 	github.com/smallstep/nosql v0.3.0

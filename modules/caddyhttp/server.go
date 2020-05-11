@@ -22,14 +22,26 @@ import (
 	"net/http"
 	"net/url"
 	"runtime"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/caddyserver/caddy/v2"
 	"github.com/caddyserver/caddy/v2/modules/caddytls"
 	"github.com/lucas-clemente/quic-go/http3"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+)
+
+var responseDurationHistogram = promauto.NewHistogramVec(
+	prometheus.HistogramOpts{
+		Name:    "http_response_duration_seconds",
+		Help:    "A histogram of the HTTP entrypoint duration",
+		Buckets: prometheus.DefBuckets,
+	},
+	[]string{"status"},
 )
 
 // Server describes an HTTP server.
@@ -179,6 +191,8 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			repl.Set("http.response.status", wrec.Status())
 			repl.Set("http.response.size", wrec.Size())
 			repl.Set("http.response.duration", duration)
+
+			responseDurationHistogram.WithLabelValues(strconv.Itoa(wrec.Status())).Observe(duration.Seconds())
 
 			logger := accLog
 			if s.Logs != nil {
